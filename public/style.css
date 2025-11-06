@@ -6,6 +6,7 @@
     --bg-secondary: #1a1a2e;
     --bg-tertiary: #16213e;
     --bg-message: #252545;
+    --bg-message-own: #1e3a5f;
     --bg-input: #1e1e3f;
     --accent-primary: #00d9ff;
     --accent-secondary: #7b2ff7;
@@ -14,6 +15,7 @@
     --text-secondary: #a0a0c0;
     --text-muted: #6b6b8b;
     --border-color: #2a2a4a;
+    --border-own: #2d5a7b;
     --shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
     --success: #00ff88;
     --danger: #ff4757;
@@ -30,15 +32,21 @@
     -webkit-tap-highlight-color: transparent;
 }
 
+html {
+    height: 100%;
+    overflow: hidden;
+}
+
 body {
     font-family: 'Cairo', sans-serif;
     background: var(--bg-primary);
     color: var(--text-primary);
+    height: 100%;
     overflow: hidden;
     position: fixed;
     width: 100%;
-    height: 100%;
     -webkit-font-smoothing: antialiased;
+    touch-action: pan-y;
 }
 
 /* ====================================
@@ -79,10 +87,12 @@ body {
     z-index: 10;
     width: 100%;
     height: 100vh;
+    height: 100dvh; /* للهواتف الحديثة */
     max-width: 100%;
     display: flex;
     flex-direction: column;
     background: var(--bg-secondary);
+    overflow: hidden;
 }
 
 /* ====================================
@@ -98,6 +108,7 @@ body {
     gap: 12px;
     box-shadow: var(--shadow);
     flex-shrink: 0;
+    min-height: 60px;
 }
 
 .header-left {
@@ -221,6 +232,7 @@ body {
     gap: 12px;
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
 }
 
 /* شريط التمرير */
@@ -335,8 +347,8 @@ body {
 
 .message.own-message {
     align-self: flex-end;
-    background: var(--accent-gradient);
-    border: none;
+    background: var(--bg-message-own);
+    border: 1px solid var(--border-own);
 }
 
 .message-header {
@@ -357,7 +369,7 @@ body {
 }
 
 .message.own-message .message-username {
-    color: rgba(255, 255, 255, 0.9);
+    color: #4dd4ff;
 }
 
 .message-time {
@@ -367,7 +379,7 @@ body {
 }
 
 .message.own-message .message-time {
-    color: rgba(255, 255, 255, 0.7);
+    color: #7ba5c4;
 }
 
 .message-body {
@@ -375,7 +387,7 @@ body {
 }
 
 .message-reply {
-    background: rgba(0, 0, 0, 0.2);
+    background: rgba(0, 0, 0, 0.3);
     border-left: 3px solid var(--accent-primary);
     padding: 6px 10px;
     border-radius: 6px;
@@ -383,11 +395,20 @@ body {
     font-size: 0.85rem;
 }
 
+.message.own-message .message-reply {
+    background: rgba(0, 0, 0, 0.4);
+    border-left-color: #4dd4ff;
+}
+
 .reply-to {
     color: var(--accent-primary);
     font-size: 0.75rem;
     font-weight: 600;
     margin-bottom: 4px;
+}
+
+.message.own-message .reply-to {
+    color: #4dd4ff;
 }
 
 .reply-content {
@@ -421,6 +442,11 @@ body {
 .msg-action-btn:hover {
     background: rgba(0, 217, 255, 0.1);
     color: var(--accent-primary);
+}
+
+.message.own-message .msg-action-btn:hover {
+    background: rgba(77, 212, 255, 0.1);
+    color: #4dd4ff;
 }
 
 /* إشعار الكتابة */
@@ -535,7 +561,7 @@ body {
 }
 
 /* ====================================
-   منطقة الإدخال
+   منطقة الإدخال - مُصلحة للهاتف
 ==================================== */
 .input-section {
     background: var(--bg-tertiary);
@@ -545,6 +571,8 @@ body {
     flex-direction: column;
     gap: 10px;
     flex-shrink: 0;
+    position: relative;
+    z-index: 100;
 }
 
 .username-container {
@@ -561,6 +589,7 @@ body {
     font-size: 1.5rem;
     cursor: pointer;
     transition: transform 0.2s;
+    flex-shrink: 0;
 }
 
 .avatar:hover {
@@ -575,6 +604,7 @@ body {
     font-size: 0.95rem;
     font-family: 'Cairo', sans-serif;
     outline: none;
+    min-width: 0;
 }
 
 .username-container input::placeholder {
@@ -589,6 +619,7 @@ body {
     padding: 4px;
     border-radius: 6px;
     transition: all 0.2s;
+    flex-shrink: 0;
 }
 
 .emoji-btn:hover {
@@ -621,6 +652,7 @@ body {
     border-radius: 6px;
     transition: all 0.2s;
     flex-shrink: 0;
+    align-self: flex-end;
 }
 
 .attach-btn:hover {
@@ -640,6 +672,7 @@ body {
     max-height: 100px;
     line-height: 1.5;
     padding: 4px 0;
+    min-width: 0;
 }
 
 #messageInput::placeholder {
@@ -668,13 +701,8 @@ body {
     flex-shrink: 0;
 }
 
-.send-btn:hover {
-    transform: scale(1.05);
-    box-shadow: 0 0 20px rgba(0, 217, 255, 0.5);
-}
-
 .send-btn:active {
-    transform: scale(0.95);
+    transform: scale(0.9);
 }
 
 .send-icon {
@@ -913,11 +941,22 @@ body {
 }
 
 /* ====================================
-   التصميم المتجاوب للهاتف
+   التصميم المتجاوب للهاتف - محسّن
 ==================================== */
 @media (max-width: 768px) {
+    body {
+        height: 100vh;
+        height: 100dvh;
+    }
+
+    .container {
+        height: 100vh;
+        height: 100dvh;
+    }
+
     .header {
         padding: 10px 12px;
+        min-height: 55px;
     }
 
     .logo-text h1 {
@@ -948,6 +987,7 @@ body {
     .messages-container {
         padding: 12px;
         gap: 10px;
+        padding-bottom: 20px; /* مساحة إضافية في الأسفل */
     }
 
     .welcome-screen {
@@ -967,6 +1007,7 @@ body {
     .input-section {
         padding: 10px;
         gap: 8px;
+        /* إزالة safe-area-inset لتجنب المشاكل */
     }
 
     .username-container {
@@ -980,6 +1021,24 @@ body {
     .send-btn {
         width: 36px;
         height: 36px;
+        min-width: 36px;
+    }
+
+    .attach-btn {
+        font-size: 1.2rem;
+    }
+
+    #messageInput {
+        font-size: 16px; /* منع zoom على iOS */
+    }
+
+    .username-container input {
+        font-size: 16px; /* منع zoom على iOS */
+    }
+
+    .emoji-picker {
+        bottom: 160px;
+        width: 95%;
     }
 
     .emoji-grid {
@@ -989,15 +1048,32 @@ body {
     .avatar-grid {
         grid-template-columns: repeat(4, 1fr);
     }
+
+    .char-counter {
+        display: none; /* إخفاء على الهاتف لتوفير مساحة */
+    }
 }
 
 @media (max-width: 480px) {
     .emoji-grid {
         grid-template-columns: repeat(5, 1fr);
+        gap: 6px;
+    }
+
+    .emoji-item {
+        font-size: 1.3rem;
+        padding: 6px;
     }
 
     .avatar-grid {
         grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* إصلاح لمنع مشاكل الكيبورد على iOS */
+@supports (-webkit-touch-callout: none) {
+    .container {
+        height: -webkit-fill-available;
     }
 }
 
@@ -1021,4 +1097,9 @@ body {
 @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
 }
