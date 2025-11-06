@@ -4,8 +4,8 @@ const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 const path = require('path');
 
-// تقديم الملفات الثابتة من مجلد public
-app.use(express.static('public'));
+// ✅ تقديم الملفات الثابتة من مسار مطلق (حل Render)
+app.use(express.static(path.join(__dirname, 'public')));
 
 // مصفوفة لتخزين الرسائل (في الذاكرة)
 let messages = [];
@@ -68,5 +68,4 @@ io.on('connection', (socket) => {
 const PORT = process.env.PORT || 3000;
 http.listen(PORT, () => {
   console.log(`الخادم يعمل على المنفذ ${PORT}`);
-  console.log(`افتح المتصفح على: http://localhost:${PORT}`);
 });
