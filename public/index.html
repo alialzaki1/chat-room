@@ -5,46 +5,100 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>غرفة الدردشة الفورية</title>
     <link rel="stylesheet" href="style.css">
+    <!-- خط Cairo من Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
+    <div class="background-animation"></div>
+    
     <div class="container">
+        <!-- رأس الصفحة المحسّن -->
         <header class="header">
-            <h1>💬 غرفة الدردشة</h1>
-            <div class="user-info">
-                <span class="online-count">
-                    <span class="status-dot"></span>
-                    متصل الآن: <span id="userCount">0</span>
-                </span>
+            <div class="header-content">
+                <div class="header-title">
+                    <div class="logo-icon">💬</div>
+                    <div>
+                        <h1>غرفة الدردشة</h1>
+                        <p class="header-subtitle">تواصل مع الجميع بسهولة</p>
+                    </div>
+                </div>
+                <div class="user-info">
+                    <div class="online-badge">
+                        <span class="status-dot"></span>
+                        <div class="online-text">
+                            <span class="count-label">متصل الآن</span>
+                            <span id="userCount" class="count-number">0</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </header>
 
-        <div class="messages-container" id="messagesContainer">
-            <div class="welcome-message">
-                <h2>مرحباً بك في غرفة الدردشة! 👋</h2>
-                <p>ابدأ بكتابة رسالتك أدناه...</p>
+        <!-- منطقة الرسائل -->
+        <div class="messages-wrapper">
+            <div class="messages-container" id="messagesContainer">
+                <div class="welcome-card">
+                    <div class="welcome-icon">👋</div>
+                    <h2>مرحباً بك في غرفة الدردشة!</h2>
+                    <p>ابدأ محادثتك الآن وتواصل مع المستخدمين الآخرين</p>
+                    <div class="welcome-features">
+                        <span>✨ دردشة فورية</span>
+                        <span>🔒 آمنة وسريعة</span>
+                        <span>📱 متجاوبة</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- إشعار الكتابة المحسّن -->
+            <div class="typing-indicator" id="typingIndicator" style="display: none;">
+                <div class="typing-content">
+                    <div class="typing-dots">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                    <span id="typingText" class="typing-text"></span>
+                </div>
             </div>
         </div>
 
-        <div class="typing-indicator" id="typingIndicator" style="display: none;">
-            <span class="typing-dots">
-                <span></span>
-                <span></span>
-                <span></span>
-            </span>
-            <span id="typingText"></span>
-        </div>
-
+        <!-- منطقة الإدخال المحسّنة -->
         <div class="input-container">
-            <div class="username-section">
-                <label for="username">الاسم:</label>
-                <input type="text" id="username" placeholder="اسمك هنا" maxlength="20" autocomplete="off">
-            </div>
-            <div class="message-section">
-                <input type="text" id="messageInput" placeholder="اكتب رسالتك هنا..." maxlength="500" autocomplete="off">
-                <button id="sendButton">
-                    <span class="send-icon">📤</span>
-                    إرسال
-                </button>
+            <div class="input-wrapper">
+                <!-- حقل الاسم -->
+                <div class="username-group">
+                    <div class="input-icon">👤</div>
+                    <input 
+                        type="text" 
+                        id="username" 
+                        placeholder="اسمك" 
+                        maxlength="20"
+                        autocomplete="off"
+                    >
+                </div>
+
+                <!-- حقل الرسالة -->
+                <div class="message-group">
+                    <div class="message-input-wrapper">
+                        <div class="input-icon">✉️</div>
+                        <input 
+                            type="text" 
+                            id="messageInput" 
+                            placeholder="اكتب رسالتك هنا..." 
+                            maxlength="500"
+                            autocomplete="off"
+                        >
+                    </div>
+                    <button id="sendButton" class="send-button">
+                        <svg class="send-icon" viewBox="0 0 24 24" fill="none">
+                            <path d="M22 2L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>إرسال</span>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
