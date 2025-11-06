@@ -1,4 +1,31 @@
 // ====================================
+// إدارة Cookies
+// ====================================
+const CookieManager = {
+    set: (name, value, days = 365) => {
+        const date = new Date();
+        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+        document.cookie = `${name}=${encodeURIComponent(JSON.stringify(value))};expires=${date.toUTCString()};path=/`;
+    },
+    
+    get: (name) => {
+        const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+        if (match) {
+            try {
+                return JSON.parse(decodeURIComponent(match[2]));
+            } catch (e) {
+                return null;
+            }
+        }
+        return null;
+    },
+    
+    remove: (name) => {
+        document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/`;
+    }
+};
+
+// ====================================
 // الاتصال بالخادم
 // ====================================
 const socket = io();
@@ -6,171 +33,301 @@ const socket = io();
 // ====================================
 // العناصر من DOM
 // ====================================
-const messageInput = document.getElementById('messageInput');
-const sendButton = document.getElementById('sendButton');
-const messagesContainer = document.getElementById('messagesContainer');
-const usernameInput = document.getElementById('username');
-const typingIndicator = document.getElementById('typingIndicator');
-const typingText = document.getElementById('typingText');
-const userCountElement = document.getElementById('userCount');
-const themeToggle = document.getElementById('themeToggle');
-const scrollToBottomBtn = document.getElementById('scrollToBottomBtn');
-
-// ✨ جديد: عناصر الرموز التعبيرية والرد
-const emojiButton = document.getElementById('emojiButton');
-const emojiPickerContainer = document.getElementById('emojiPickerContainer');
-const emojiPicker = document.querySelector('emoji-picker');
-const inputReplyContext = document.getElementById('inputReplyContext');
-const replyContextUsername = document.getElementById('replyContextUsername');
-const replyContextText = document.getElementById('replyContextText');
-const cancelReplyBtn = document.getElementById('cancelReplyBtn');
-
-
-// ====================================
-// اسم المستخدم
-// ====================================
-const savedUsername = localStorage.getItem('username');
-if (savedUsername) {
-    usernameInput.value = savedUsername;
-} else {
-    // ✨✨✨ تم تحديث هذه القائمة بناءً على طلبك ✨✨✨
-    const arabicNames = [
-        'علي', 'حسن', 'حسين', 'جعفر', 'موسى', 'كاظم', 'رضا', 
-        'جواد', 'هادي', 'مهدي', 'باقر', 'عباس', 'فاطمة', 
-        'زينب', 'زهراء', 'رقية', 'سكينة', 'نرجس', 'معصومة'
-    ];
-    // ... (نفس كود توليد الاسم العشوائي)
-    const randomName = arabicNames[Math.floor(Math.random() * arabicNames.length)];
-    const randomNumber = Math.floor(Math.random() * 9999);
-    usernameInput.value = `${randomName}${randomNumber}`;
-    localStorage.setItem('username', usernameInput.value);
-}
-usernameInput.addEventListener('input', () => {
-    localStorage.setItem('username', usernameInput.value.trim());
-});
+const elements = {
+    messageInput: document.getElementById('messageInput'),
+    sendButton: document.getElementById('sendButton'),
+    messagesContainer: document.getElementById('messagesContainer'),
+    usernameInput: document.getElementById('username'),
+    typingIndicator: document.getElementById('typingIndicator'),
+    typingText: document.getElementById('typingText'),
+    userCountElement: document.getElementById('userCount'),
+    userAvatar: document.getElementById('userAvatar'),
+    replyBanner: document.getElementById('replyBanner'),
+    replyUsername: document.getElementById('replyUsername'),
+    replyMessage: document.getElementById('replyMessage'),
+    replyClose: document.getElementById('replyClose'),
+    charCounter: document.getElementById('charCounter'),
+    emojiBtn: document.getElementById('emojiBtn'),
+    emojiPicker: document.getElementById('emojiPicker'),
+    emojiGrid: document.getElementById('emojiGrid'),
+    changeAvatarBtn: document.getElementById('changeAvatarBtn'),
+    avatarPicker: document.getElementById('avatarPicker'),
+    avatarGrid: document.getElementById('avatarGrid'),
+    settingsBtn: document.getElementById('settingsBtn'),
+    settingsModal: document.getElementById('settingsModal'),
+    closeSettings: document.getElementById('closeSettings'),
+    soundToggle: document.getElementById('soundToggle'),
+    notificationToggle: document.getElementById('notificationToggle'),
+    typingToggle: document.getElementById('typingToggle'),
+    clearHistoryBtn: document.getElementById('clearHistoryBtn')
+};
 
 // ====================================
-// متغيرات تتبع الحالة
+// الإعدادات والحالات
 // ====================================
+let currentReply = null;
 let isTyping = false;
 let typingTimer;
 let isFirstMessage = true;
-let currentReplyMessageId = null; // ✨ جديد: لتتبع الرسالة التي يتم الرد عليها
+
+// الإيموجي المتاحة
+const emojis = ['😀','😃','😄','😁','😅','😂','🤣','😊','😇','🙂','🙃','😉','😌','😍','🥰','😘','😗','😙','😚','😋','😛','😝','😜','🤪','🤨','🧐','🤓','😎','🤩','🥳','😏','😒','😞','😔','😟','😕','🙁','😣','😖','😫','😩','🥺','😢','😭','😤','😠','😡','🤬','🤯','😳','🥵','🥶','😱','😨','😰','😥','😓','🤗','🤔','🤭','🤫','🤥','😶','😐','😑','😬','🙄','😯','😦','😧','😮','😲','🥱','😴','🤤','😪','😵','🤐','🥴','🤢','🤮','🤧','😷','🤒','🤕','🤑','🤠','👋','🤚','🖐','✋','🖖','👌','🤌','🤏','✌','🤞','🤟','🤘','🤙','👈','👉','👆','🖕','👇','☝','👍','👎','✊','👊','🤛','🤜','👏','🙌','👐','🤲','🤝','🙏','✍','💅','🤳','💪','🦾','🦿','🦵','🦶','👂','🦻','👃','🧠','🫀','🫁','🦷','🦴','👀','👁','👅','👄','💋','🩸'];
+
+// الأفتارات المتاحة
+const avatars = ['👤','😀','😎','🤓','😇','🥳','🤩','😍','🥰','😏','🤔','🧐','😴','🥱','😛','🤪','🤑','🤠','👻','👽','🤖','😺','😸','😹','😻','😼','😽','🙀','😿','😾','🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼','🐨','🐯','🦁','🐮','🐷','🐸','🐵','🐔','🐧','🐦','🦆','🦅','🦉','🦇','🐺','🐗','🐴','🦄','🐝','🐛','🦋','🐌','🐞','🐜','🪲','🦗','🕷','🦂','🐢','🐍','🦎','🦖','🦕','🐙','🦑','🦐','🦞','🦀','🐡','🐠','🐟','🐬','🐳','🐋','🦈'];
+
+// تحميل الإعدادات من Cookies
+let settings = CookieManager.get('chatSettings') || {
+    sound: true,
+    notifications: true,
+    typing: true
+};
+
+// تحميل معلومات المستخدم من Cookies
+let userData = CookieManager.get('chatUserData') || {
+    username: '',
+    avatar: '👤',
+    messageCount: 0
+};
 
 // ====================================
-// دالة إرسال الرسالة
+// التهيئة الأولية
+// ====================================
+function initializeApp() {
+    // تعيين الاسم والأفتار المحفوظين
+    if (userData.username) {
+        elements.usernameInput.value = userData.username;
+    } else {
+        const names = ['محمد', 'أحمد', 'علي', 'فاطمة', 'خديجة', 'عمر', 'خالد', 'سارة', 'مريم', 'نور'];
+        userData.username = `${names[Math.floor(Math.random() * names.length)]}${Math.floor(Math.random() * 9999)}`;
+        elements.usernameInput.value = userData.username;
+    }
+    
+    elements.userAvatar.textContent = userData.avatar;
+    
+    // تعيين الإعدادات
+    elements.soundToggle.checked = settings.sound;
+    elements.notificationToggle.checked = settings.notifications;
+    elements.typingToggle.checked = settings.typing;
+    
+    // إنشاء قوائم الإيموجي والأفتارات
+    populateEmojis();
+    populateAvatars();
+    
+    // التركيز على حقل الرسالة
+    elements.messageInput.focus();
+    
+    // تفعيل الإشعارات
+    if (settings.notifications && 'Notification' in window) {
+        Notification.requestPermission();
+    }
+}
+
+// ====================================
+// ملء قائمة الإيموجي
+// ====================================
+function populateEmojis() {
+    elements.emojiGrid.innerHTML = emojis.map(emoji => 
+        `<div class="emoji-item" data-emoji="${emoji}">${emoji}</div>`
+    ).join('');
+    
+    elements.emojiGrid.querySelectorAll('.emoji-item').forEach(item => {
+        item.addEventListener('click', () => {
+            insertEmoji(item.dataset.emoji);
+        });
+    });
+}
+
+// ====================================
+// ملء قائمة الأفتارات
+// ====================================
+function populateAvatars() {
+    elements.avatarGrid.innerHTML = avatars.map(avatar => 
+        `<div class="avatar-option" data-avatar="${avatar}">${avatar}</div>`
+    ).join('');
+    
+    elements.avatarGrid.querySelectorAll('.avatar-option').forEach(item => {
+        item.addEventListener('click', () => {
+            selectAvatar(item.dataset.avatar);
+        });
+    });
+}
+
+// ====================================
+// إدراج إيموجي
+// ====================================
+function insertEmoji(emoji) {
+    const cursorPos = elements.messageInput.selectionStart;
+    const text = elements.messageInput.value;
+    const newText = text.slice(0, cursorPos) + emoji + text.slice(cursorPos);
+    elements.messageInput.value = newText;
+    elements.messageInput.focus();
+    elements.messageInput.setSelectionRange(cursorPos + emoji.length, cursorPos + emoji.length);
+    updateCharCounter();
+    elements.emojiPicker.classList.remove('active');
+}
+
+// ====================================
+// اختيار أفتار
+// ====================================
+function selectAvatar(avatar) {
+    userData.avatar = avatar;
+    elements.userAvatar.textContent = avatar;
+    CookieManager.set('chatUserData', userData);
+    elements.avatarPicker.classList.remove('active');
+}
+
+// ====================================
+// تحديث عداد الأحرف
+// ====================================
+function updateCharCounter() {
+    const count = elements.messageInput.value.length;
+    elements.charCounter.textContent = `${count}/1000`;
+    if (count > 900) {
+        elements.charCounter.style.color = 'var(--warning)';
+    } else {
+        elements.charCounter.style.color = 'var(--text-muted)';
+    }
+}
+
+// ====================================
+// إرسال رسالة
 // ====================================
 function sendMessage() {
-    const text = messageInput.value.trim();
-    const username = usernameInput.value.trim() || localStorage.getItem('username') || 'مجهول';
-
+    const text = elements.messageInput.value.trim();
+    const username = elements.usernameInput.value.trim() || 'مجهول';
+    
     if (!text) {
-        messageInput.parentElement.classList.add('shake');
-        setTimeout(() => messageInput.parentElement.classList.remove('shake'), 500);
+        elements.messageInput.classList.add('shake');
+        setTimeout(() => elements.messageInput.classList.remove('shake'), 500);
         return;
     }
-
-    // ✨ تعديل: إرسال كائن الرسالة كاملاً
+    
+    // حفظ الاسم
+    userData.username = username;
+    userData.messageCount++;
+    CookieManager.set('chatUserData', userData);
+    
     const messageData = {
         username,
         text,
-        replyToId: currentReplyMessageId // أضفنا ID الرد
+        avatar: userData.avatar,
+        reply: currentReply
     };
+    
     socket.emit('chat message', messageData);
-
-    messageInput.value = '';
+    
+    elements.messageInput.value = '';
+    updateCharCounter();
+    cancelReply();
     socket.emit('stop typing');
     isTyping = false;
-
-    // ✨ جديد: إلغاء وضع الرد بعد الإرسال
-    cancelReply();
-
-    sendButton.classList.add('sent');
-    setTimeout(() => sendButton.classList.remove('sent'), 300);
+    
+    // تأثير الإرسال
+    elements.sendButton.style.animation = 'sendPulse 0.3s';
+    setTimeout(() => elements.sendButton.style.animation = '', 300);
+    
+    // تشغيل صوت
+    if (settings.sound) playSound('send');
 }
 
 // ====================================
-// ✨ جديد: دوال الرد
+// إضافة رسالة
 // ====================================
-function startReply(messageId, username, text) {
-    currentReplyMessageId = messageId;
-    replyContextUsername.textContent = username;
-    replyContextText.textContent = text;
-    inputReplyContext.style.display = 'flex';
-    messageInput.focus();
-}
-
-function cancelReply() {
-    currentReplyMessageId = null;
-    inputReplyContext.style.display = 'none';
-    replyContextUsername.textContent = '';
-    replyContextText.textContent = '';
-}
-// ربط زر الإلغاء
-cancelReplyBtn.addEventListener('click', cancelReply);
-
-
-// ====================================
-// دالة إضافة رسالة
-// ====================================
-// ✨ تعديل: الدالة أصبحت تستقبل كائن رسالة كامل
 function addMessage(msg) {
-    // msg = { id, username, text, timestamp, replyTo }
-    // replyTo = { username, text } (اختياري)
-
     if (isFirstMessage) {
-        const welcomeCard = messagesContainer.querySelector('.welcome-card');
-        if (welcomeCard) {
-            welcomeCard.style.animation = 'fadeOut 0.3s ease-out';
-            setTimeout(() => welcomeCard.remove(), 300);
+        const welcome = elements.messagesContainer.querySelector('.welcome-screen');
+        if (welcome) {
+            welcome.style.animation = 'fadeOut 0.3s';
+            setTimeout(() => welcome.remove(), 300);
         }
         isFirstMessage = false;
     }
-
-    const messageElement = document.createElement('div');
-    messageElement.className = 'message';
-    // ✨ جديد: إضافة ID الرسالة للـ DOM
-    messageElement.dataset.messageId = msg.id; 
-    messageElement.dataset.username = msg.username;
-    messageElement.dataset.text = msg.text;
-
-    // تنسيق الوقت
-    const time = msg.timestamp ? new Date(msg.timestamp) : new Date();
-    const timeString = time.toLocaleTimeString('ar-SA', { 
-        hour: '2-digit', 
-        minute: '2-digit',
-        hour12: true
-    });
-
-    // ✨ جديد: بناء الاقتباس (الرد) إذا وجد
-    let replyQuoteHtml = '';
-    if (msg.replyTo) {
-        replyQuoteHtml = `
-            <div class="message-reply-quote">
-                <span class="username">${escapeHtml(msg.replyTo.username)}</span>
-                <span class="text">${escapeHtml(msg.replyTo.text)}</span>
+    
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'message';
+    messageDiv.dataset.messageId = msg.id;
+    
+    // التحقق إذا كانت رسالتي
+    const isOwn = msg.username === elements.usernameInput.value.trim();
+    if (isOwn) messageDiv.classList.add('own-message');
+    
+    // بناء HTML الرسالة
+    let html = `
+        <div class="message-header">
+            <span class="message-avatar">${msg.avatar || '👤'}</span>
+            <span class="message-username">${escapeHtml(msg.username)}</span>
+            <span class="message-time">${formatTime(msg.timestamp)}</span>
+        </div>
+        <div class="message-body">
+    `;
+    
+    // إضافة الرد إن وجد
+    if (msg.reply) {
+        html += `
+            <div class="message-reply">
+                <div class="reply-to">↩️ ${escapeHtml(msg.reply.username)}</div>
+                <div class="reply-content">${escapeHtml(msg.reply.text)}</div>
             </div>
         `;
     }
-
-    messageElement.innerHTML = `
-        ${replyQuoteHtml}
-        <span class="username">${escapeHtml(msg.username)}</span>
-        <span class="text">${escapeHtml(msg.text)}</span>
-        <span class="timestamp">${timeString}</span>
-        <button class="reply-button">↩</button>
+    
+    html += `
+            <div class="message-text">${escapeHtml(msg.text)}</div>
+        </div>
+        <div class="message-actions">
+            <button class="msg-action-btn reply-btn" data-username="${escapeHtml(msg.username)}" data-text="${escapeHtml(msg.text)}" data-id="${msg.id}">
+                ↩️ رد
+            </button>
+        </div>
     `;
-
-    // ... (نفس منطق التمرير للأسفل) ...
-    const isScrolledToBottom = messagesContainer.scrollHeight - messagesContainer.clientHeight <= messagesContainer.scrollTop + 50;
-    messagesContainer.appendChild(messageElement);
-    if (isScrolledToBottom) {
-        setTimeout(() => {
-            messagesContainer.scrollTo({ top: messagesContainer.scrollHeight, behavior: 'smooth' });
-        }, 100);
-    } else {
-        scrollToBottomBtn.style.display = 'block';
+    
+    messageDiv.innerHTML = html;
+    
+    // معالج زر الرد
+    messageDiv.querySelector('.reply-btn').addEventListener('click', function() {
+        setReply(this.dataset.username, this.dataset.text, this.dataset.id);
+    });
+    
+    elements.messagesContainer.appendChild(messageDiv);
+    scrollToBottom();
+    
+    // تشغيل صوت وإشعار للرسائل الجديدة
+    if (!isOwn) {
+        if (settings.sound) playSound('receive');
+        if (settings.notifications) showNotification(msg.username, msg.text);
     }
+}
+
+// ====================================
+// تعيين الرد
+// ====================================
+function setReply(username, text, id) {
+    currentReply = { username, text, id };
+    elements.replyUsername.textContent = username;
+    elements.replyMessage.textContent = text.length > 50 ? text.substring(0, 50) + '...' : text;
+    elements.replyBanner.classList.add('active');
+    elements.messageInput.focus();
+}
+
+// ====================================
+// إلغاء الرد
+// ====================================
+function cancelReply() {
+    currentReply = null;
+    elements.replyBanner.classList.remove('active');
+}
+
+// ====================================
+// تنسيق الوقت
+// ====================================
+function formatTime(timestamp) {
+    const date = timestamp ? new Date(timestamp) : new Date();
+    const hours = date.getHours();
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const ampm = hours >= 12 ? 'م' : 'ص';
+    const displayHours = hours % 12 || 12;
+    return `${displayHours}:${minutes} ${ampm}`;
 }
 
 // ====================================
@@ -183,77 +340,216 @@ function escapeHtml(text) {
 }
 
 // ====================================
+// التمرير للأسفل
+// ====================================
+function scrollToBottom() {
+    setTimeout(() => {
+        elements.messagesContainer.scrollTo({
+            top: elements.messagesContainer.scrollHeight,
+            behavior: 'smooth'
+        });
+    }, 100);
+}
+
+// ====================================
+// تشغيل الأصوات
+// ====================================
+function playSound(type) {
+    try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        if (type === 'send') {
+            oscillator.frequency.value = 800;
+            gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.1);
+        } else if (type === 'receive') {
+            oscillator.frequency.value = 600;
+            gainNode.gain.setValueAtTime(0.08, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.15);
+        }
+    } catch (e) {
+        console.log('Audio not supported');
+    }
+}
+
+// ====================================
+// إظهار إشعار
+// ====================================
+function showNotification(username, text) {
+    if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification(`رسالة من ${username}`, {
+            body: text.substring(0, 100),
+            icon: '💬',
+            tag: 'chat-notification'
+        });
+    }
+}
+
+// ====================================
 // معالجات الأحداث
 // ====================================
 
-// ... (النقر والإدخال) ...
-sendButton.addEventListener('click', sendMessage);
-messageInput.addEventListener('keypress', (e) => {
+// زر الإرسال
+elements.sendButton.addEventListener('click', sendMessage);
+
+// Enter للإرسال
+elements.messageInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
         sendMessage();
     }
 });
-messageInput.addEventListener('input', () => {
-    const username = usernameInput.value.trim() || 'مجهول';
-    if (messageInput.value.trim() !== '') {
-        if (!isTyping) {
-            isTyping = true;
-            socket.emit('typing', username);
+
+// تحديث عداد الأحرف
+elements.messageInput.addEventListener('input', () => {
+    updateCharCounter();
+    
+    // إشعار الكتابة
+    if (settings.typing) {
+        const text = elements.messageInput.value.trim();
+        if (text !== '') {
+            if (!isTyping) {
+                isTyping = true;
+                socket.emit('typing', elements.usernameInput.value.trim());
+            }
+            clearTimeout(typingTimer);
+            typingTimer = setTimeout(() => {
+                isTyping = false;
+                socket.emit('stop typing');
+            }, 1000);
+        } else {
+            if (isTyping) {
+                isTyping = false;
+                socket.emit('stop typing');
+            }
         }
-        clearTimeout(typingTimer);
-        typingTimer = setTimeout(() => {
-            isTyping = false;
-            socket.emit('stop typing');
-        }, 1000);
-    } else {
-        if (isTyping) {
-            isTyping = false;
-            socket.emit('stop typing');
-        }
-    }
-});
-window.addEventListener('load', () => {
-    messageInput.focus();
-});
-
-
-// ... (أزرار النزول والوضع الداكن) ...
-scrollToBottomBtn.addEventListener('click', () => {
-    messagesContainer.scrollTo({ top: messagesContainer.scrollHeight, behavior: 'smooth' });
-    scrollToBottomBtn.style.display = 'none';
-});
-messagesContainer.addEventListener('scroll', () => {
-    if (messagesContainer.scrollHeight - messagesContainer.clientHeight <= messagesContainer.scrollTop + 50) {
-        scrollToBottomBtn.style.display = 'none';
-    }
-});
-function setInitialTheme() {
-    const preferredTheme = localStorage.getItem('theme');
-    if (preferredTheme === 'dark') {
-        document.body.classList.add('dark-mode');
-        emojiPicker.classList.remove('light');
-        emojiPicker.classList.add('dark');
-    } else {
-        document.body.classList.remove('dark-mode');
-        emojiPicker.classList.remove('dark');
-        emojiPicker.classList.add('light');
-    }
-}
-setInitialTheme();
-themeToggle.addEventListener('click', () => {
-    document.body.classList.toggle('dark-mode');
-    if (document.body.classList.contains('dark-mode')) {
-        localStorage.setItem('theme', 'dark');
-        emojiPicker.classList.remove('light');
-        emojiPicker.classList.add('dark');
-    } else {
-        localStorage.setItem('theme', 'light');
-        emojiPicker.classList.remove('dark');
-        emojiPicker.classList.add('light');
     }
 });
 
+// تعديل الاسم
+elements.usernameInput.addEventListener('change', () => {
+    userData.username = elements.usernameInput.value.trim();
+    CookieManager.set('chatUserData', userData);
+});
+
+// إلغاء الرد
+elements.replyClose.addEventListener('click', cancelReply);
+
+// قائمة الإيموجي
+elements.emojiBtn.addEventListener('click', () => {
+    elements.emojiPicker.classList.toggle('active');
+    elements.avatarPicker.classList.remove('active');
+});
+
+// قائمة الأفتارات
+elements.changeAvatarBtn.addEventListener('click', () => {
+    elements.avatarPicker.classList.toggle('active');
+    elements.emojiPicker.classList.remove('active');
+});
+
+// الإعدادات
+elements.settingsBtn.addEventListener('click', () => {
+    elements.settingsModal.classList.add('active');
+});
+
+elements.closeSettings.addEventListener('click', () => {
+    elements.settingsModal.classList.remove('active');
+});
+
+elements.settingsModal.addEventListener('click', (e) => {
+    if (e.target === elements.settingsModal) {
+        elements.settingsModal.classList.remove('active');
+    }
+});
+
+// تحديث الإعدادات
+elements.soundToggle.addEventListener('change', () => {
+    settings.sound = elements.soundToggle.checked;
+    CookieManager.set('chatSettings', settings);
+});
+
+elements.notificationToggle.addEventListener('change', () => {
+    settings.notifications = elements.notificationToggle.checked;
+    CookieManager.set('chatSettings', settings);
+    if (settings.notifications && 'Notification' in window) {
+        Notification.requestPermission();
+    }
+});
+
+elements.typingToggle.addEventListener('change', () => {
+    settings.typing = elements.typingToggle.checked;
+    CookieManager.set('chatSettings', settings);
+});
+
+// مسح السجل
+elements.clearHistoryBtn.addEventListener('click', () => {
+    if (confirm('هل تريد مسح جميع بيانات المحفوظة؟')) {
+        CookieManager.remove('chatUserData');
+        CookieManager.remove('chatSettings');
+        location.reload();
+    }
+});
+
+// إغلاق القوائم عند النقر خارجها
+document.addEventListener('click', (e) => {
+    if (!elements.emojiBtn.contains(e.target) && !elements.emojiPicker.contains(e.target)) {
+        elements.emojiPicker.classList.remove('active');
+    }
+    if (!elements.changeAvatarBtn.contains(e.target) && !elements.avatarPicker.contains(e.target)) {
+        elements.avatarPicker.classList.remove('active');
+    }
+});
 
 // ====================================
-// ✨ جديد: منطق ال
+// أحداث Socket.IO
+// ====================================
+
+socket.on('previous messages', (messages) => {
+    messages.forEach(msg => addMessage(msg));
+});
+
+socket.on('chat message', (msg) => {
+    addMessage(msg);
+});
+
+socket.on('user count', (count) => {
+    elements.userCountElement.textContent = count;
+});
+
+socket.on('typing', (username) => {
+    elements.typingText.textContent = `${username} يكتب...`;
+    elements.typingIndicator.classList.add('active');
+});
+
+socket.on('stop typing', () => {
+    elements.typingIndicator.classList.remove('active');
+});
+
+socket.on('connect', () => {
+    console.log('✅ متصل بالخادم');
+});
+
+socket.on('disconnect', () => {
+    console.log('❌ انقطع الاتصال');
+});
+
+// ====================================
+// تهيئة التطبيق عند التحميل
+// ====================================
+window.addEventListener('load', initializeApp);
+
+// ====================================
+// رسالة في الـ Console
+// ====================================
+console.log('%c💬 غرفة الدردشة - Dark Mode', 'background: linear-gradient(135deg, #00d9ff 0%, #7b2ff7 100%); color: white; font-size: 18px; padding: 10px 20px; border-radius: 8px; font-weight: bold;');
+console.log('%c✨ الموقع يعمل بشكل صحيح!', 'color: #00ff88; font-size: 14px; font-weight: bold;');
+console.log(`%cإحصائياتك: عدد الرسائل المرسلة: ${userData.messageCount}`, 'color: #00d9ff; font-size: 12px;');

@@ -2,122 +2,192 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>غرفة الدردشة الفورية</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#1a1a2e">
+    <title>💬 غرفة الدردشة</title>
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
-    
-    <script 
-        type="module" 
-        src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"
-    ></script>
 </head>
 <body>
-    <div class="background-animation"></div>
+    <!-- خلفية متحركة -->
+    <div class="stars"></div>
+    <div class="twinkling"></div>
     
     <div class="container">
+        <!-- رأس الصفحة -->
         <header class="header">
-            <div class="header-content">
-                <div class="header-title">
-                    <div class="logo-icon">🚀</div>
-                    <div>
+            <div class="header-left">
+                <div class="logo">
+                    <span class="logo-icon">💬</span>
+                    <div class="logo-text">
                         <h1>غرفة الدردشة</h1>
-                        <p class="header-subtitle">تواصل مع الجميع بسهولة</p>
-                    </div>
-                </div>
-                <div class="user-info">
-                    <div class="online-badge">
-                        <span class="status-dot"></span>
-                        <div class="online-text">
-                            <span class="count-label">متصل الآن</span>
-                            <span id="userCount" class="count-number">0</span>
-                        </div>
-                    </div>
-                    <button id="themeToggle" class="theme-toggle">
-                        <span class="icon-moon">🌙</span>
-                        <span class="icon-sun">☀️</span>
-                    </button>
-                </div>
-            </div>
-        </header>
-
-        <div class="messages-wrapper">
-            <div class="messages-container" id="messagesContainer">
-                <div class="welcome-card">
-                    <div class="welcome-icon">👋</div>
-                    <h2>مرحباً بك في غرفة الدردشة!</h2>
-                    <p>ابدأ محادثتك الآن. مرر الفأرة على أي رسالة للرد عليها.</p>
-                    <div class="welcome-features">
-                        <span>✨ دردشة فورية</span>
-                        <span>↩️ الرد على الرسائل</span>
-                        <span>😄 رموز تعبيرية</span>
+                        <span class="tagline">تواصل مع الجميع</span>
                     </div>
                 </div>
             </div>
             
-            <button id="scrollToBottomBtn" class="scroll-to-bottom" style="display: none;">
-                ⬇️
-            </button>
+            <div class="header-right">
+                <!-- عداد المستخدمين -->
+                <div class="online-badge">
+                    <span class="pulse-dot"></span>
+                    <span id="userCount">0</span>
+                </div>
+                
+                <!-- أزرار الإعدادات -->
+                <button class="icon-btn" id="settingsBtn" title="الإعدادات">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M12 1v6m0 6v6m5.2-14.8L14 7.4m-4 4L6.8 14.6m12.4-9.4L16 8.4m-4 4l-3.2 3.2"></path>
+                    </svg>
+                </button>
+            </div>
+        </header>
 
-            <div class="typing-indicator" id="typingIndicator" style="display: none;">
+        <!-- منطقة الرسائل -->
+        <div class="messages-wrapper" id="messagesWrapper">
+            <div class="messages-container" id="messagesContainer">
+                <div class="welcome-screen">
+                    <div class="welcome-animation">
+                        <div class="chat-bubble bubble-1">💬</div>
+                        <div class="chat-bubble bubble-2">✨</div>
+                        <div class="chat-bubble bubble-3">🚀</div>
+                    </div>
+                    <h2>أهلاً بك في غرفة الدردشة</h2>
+                    <p>ابدأ محادثتك الآن وشارك أفكارك</p>
+                    <div class="features-grid">
+                        <div class="feature-card">
+                            <span class="feature-icon">⚡</span>
+                            <span>دردشة فورية</span>
+                        </div>
+                        <div class="feature-card">
+                            <span class="feature-icon">🔒</span>
+                            <span>آمنة تماماً</span>
+                        </div>
+                        <div class="feature-card">
+                            <span class="feature-icon">↩️</span>
+                            <span>رد على الرسائل</span>
+                        </div>
+                        <div class="feature-card">
+                            <span class="feature-icon">🌙</span>
+                            <span>وضع داكن</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- إشعار الكتابة -->
+            <div class="typing-indicator" id="typingIndicator">
                 <div class="typing-content">
-                    <div class="typing-dots">
+                    <div class="typing-animation">
                         <span></span>
                         <span></span>
                         <span></span>
                     </div>
-                    <span id="typingText" class="typing-text"></span>
+                    <span id="typingText"></span>
                 </div>
+            </div>
+
+            <!-- بانر الرد -->
+            <div class="reply-banner" id="replyBanner">
+                <div class="reply-content">
+                    <div class="reply-header">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 10l-5 5 5 5"></path>
+                            <path d="M20 4v7a4 4 0 01-4 4H4"></path>
+                        </svg>
+                        <span>الرد على</span>
+                        <span id="replyUsername"></span>
+                    </div>
+                    <div class="reply-message" id="replyMessage"></div>
+                </div>
+                <button class="reply-close" id="replyClose">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
             </div>
         </div>
 
-        <div class="input-container">
-            <div class="emoji-picker-container" id="emojiPickerContainer" style="display: none;">
-                <emoji-picker class="light"></emoji-picker>
+        <!-- منطقة الإدخال -->
+        <div class="input-section">
+            <!-- حقل الاسم -->
+            <div class="username-container">
+                <div class="avatar" id="userAvatar">👤</div>
+                <input 
+                    type="text" 
+                    id="username" 
+                    placeholder="اسمك" 
+                    maxlength="20"
+                    autocomplete="off"
+                >
+                <button class="emoji-btn" id="changeAvatarBtn" title="تغيير الأفتار">🎨</button>
             </div>
 
-            <div class="input-reply-context" id="inputReplyContext" style="display: none;">
-                <div class="reply-context-content">
-                    <span class="reply-context-title">الرد على:</span>
-                    <span id="replyContextUsername" class="reply-context-username"></span>
-                    <p id="replyContextText" class="reply-context-text"></p>
-                </div>
-                <button id="cancelReplyBtn" class="cancel-reply-btn">✕</button>
+            <!-- حقل الرسالة -->
+            <div class="message-container">
+                <button class="attach-btn" id="emojiBtn" title="إضافة إيموجي">
+                    😊
+                </button>
+                <textarea 
+                    id="messageInput" 
+                    placeholder="اكتب رسالتك..." 
+                    rows="1"
+                    maxlength="1000"
+                    autocomplete="off"
+                ></textarea>
+                <div class="char-counter" id="charCounter">0/1000</div>
+                <button class="send-btn" id="sendButton">
+                    <svg class="send-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                </button>
             </div>
+        </div>
+    </div>
 
-            <div class="input-wrapper">
-                <div class="username-group">
-                    <div class="input-icon">👤</div>
-                    <input 
-                        type="text" 
-                        id="username" 
-                        placeholder="اسمك" 
-                        maxlength="20"
-                        autocomplete="off"
-                    >
+    <!-- قائمة الإيموجي -->
+    <div class="emoji-picker" id="emojiPicker">
+        <div class="emoji-grid" id="emojiGrid"></div>
+    </div>
+
+    <!-- قائمة الأفتارات -->
+    <div class="avatar-picker" id="avatarPicker">
+        <h3>اختر أفتارك</h3>
+        <div class="avatar-grid" id="avatarGrid"></div>
+    </div>
+
+    <!-- قائمة الإعدادات -->
+    <div class="settings-modal" id="settingsModal">
+        <div class="settings-content">
+            <div class="settings-header">
+                <h2>⚙️ الإعدادات</h2>
+                <button class="close-btn" id="closeSettings">✕</button>
+            </div>
+            <div class="settings-body">
+                <div class="setting-item">
+                    <label>
+                        <input type="checkbox" id="soundToggle" checked>
+                        <span>تفعيل الأصوات</span>
+                    </label>
                 </div>
-
-                <div class="message-group">
-                    <div class="message-input-wrapper">
-                        <div class="input-icon">✉️</div>
-                        <input 
-                            type="text" 
-                            id="messageInput" 
-                            placeholder="اكتب رسالتك هنا..." 
-                            maxlength="500"
-                            autocomplete="off"
-                        >
-                        <button id="emojiButton" class="emoji-button">😄</button>
-                    </div>
-                    <button id="sendButton" class="send-button">
-                        <svg class="send-icon" viewBox="0 0 24 24" fill="none">
-                            <path d="M22 2L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                            <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        <span>إرسال</span>
-                    </button>
+                <div class="setting-item">
+                    <label>
+                        <input type="checkbox" id="notificationToggle" checked>
+                        <span>إشعارات الرسائل</span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <label>
+                        <input type="checkbox" id="typingToggle" checked>
+                        <span>إظهار حالة الكتابة</span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <button class="btn-danger" id="clearHistoryBtn">🗑️ مسح السجل المحلي</button>
                 </div>
             </div>
         </div>
