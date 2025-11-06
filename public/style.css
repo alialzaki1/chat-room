@@ -12,6 +12,7 @@
     --text-primary: #1e293b;
     --text-secondary: #64748b;
     --border-color: #e2e8f0;
+    --reply-background: #f1f5f9; /* ✨ جديد: لون خلفية الرد */
     --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
     --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
@@ -23,8 +24,22 @@
 }
 
 /* ====================================
-   إعادة تعيين وإعدادات أساسية
+   ✨ الوضع الداكن ✨
 ==================================== */
+body.dark-mode {
+    --background: #1e293b;
+    --surface: #334155;
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --border-color: #475569;
+    --reply-background: #475569; /* ✨ جديد: لون خلفية الرد */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+}
+
+/* ... (باقي الأنماط الأساسية والخلفية لم تتغير) ... */
 * {
     margin: 0;
     padding: 0;
@@ -38,11 +53,11 @@ body {
     line-height: 1.6;
     overflow: hidden;
     position: relative;
+    transition: background-color 0.3s, color 0.3s;
 }
 
-/* ====================================
-   خلفية متحركة
-==================================== */
+/* ... (الخلفية المتحركة والحاوية) ... */
+
 .background-animation {
     position: fixed;
     top: 0;
@@ -53,7 +68,6 @@ body {
     opacity: 0.05;
     z-index: 0;
 }
-
 .background-animation::before {
     content: '';
     position: absolute;
@@ -65,15 +79,10 @@ body {
     background-size: 50px 50px;
     animation: moveBackground 20s linear infinite;
 }
-
 @keyframes moveBackground {
     0% { transform: translate(0, 0); }
     100% { transform: translate(50px, 50px); }
 }
-
-/* ====================================
-   الحاوية الرئيسية
-==================================== */
 .container {
     position: relative;
     z-index: 1;
@@ -87,11 +96,11 @@ body {
     flex-direction: column;
     overflow: hidden;
     backdrop-filter: blur(10px);
+    transition: background-color 0.3s;
 }
 
-/* ====================================
-   رأس الصفحة
-==================================== */
+
+/* ... (أنماط رأس الصفحة لم تتغير) ... */
 .header {
     background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
     color: white;
@@ -100,7 +109,6 @@ body {
     position: relative;
     overflow: hidden;
 }
-
 .header::before {
     content: '';
     position: absolute;
@@ -111,7 +119,6 @@ body {
     background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
     opacity: 0.3;
 }
-
 .header-content {
     position: relative;
     z-index: 1;
@@ -120,37 +127,35 @@ body {
     align-items: center;
     gap: 20px;
 }
-
 .header-title {
     display: flex;
     align-items: center;
     gap: 15px;
 }
-
 .logo-icon {
     font-size: 2.5rem;
     animation: bounce 2s infinite;
 }
-
 @keyframes bounce {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-5px); }
 }
-
 .header-title h1 {
     font-size: 1.75rem;
     font-weight: 700;
     margin: 0;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
-
 .header-subtitle {
     font-size: 0.875rem;
     opacity: 0.9;
     margin-top: 2px;
 }
-
-/* عداد المستخدمين */
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
 .online-badge {
     display: flex;
     align-items: center;
@@ -161,7 +166,6 @@ body {
     border-radius: var(--radius-lg);
     border: 1px solid rgba(255, 255, 255, 0.3);
 }
-
 .status-dot {
     width: 12px;
     height: 12px;
@@ -170,27 +174,45 @@ body {
     box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.3);
     animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
-
 @keyframes pulse {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.5; }
 }
-
 .online-text {
     display: flex;
     flex-direction: column;
     line-height: 1.2;
 }
-
 .count-label {
     font-size: 0.75rem;
     opacity: 0.9;
 }
-
 .count-number {
     font-size: 1.25rem;
     font-weight: 700;
 }
+.theme-toggle {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s, transform 0.3s;
+}
+.theme-toggle:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: rotate(15deg);
+}
+.theme-toggle .icon-sun { display: none; }
+body.dark-mode .theme-toggle .icon-sun { display: block; }
+body.dark-mode .theme-toggle .icon-moon { display: none; }
+
 
 /* ====================================
    منطقة الرسائل
@@ -200,7 +222,8 @@ body {
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    background: linear-gradient(to bottom, #f8fafc 0%, #ffffff 100%);
+    background: linear-gradient(to bottom, var(--background) 0%, var(--surface) 100%);
+    position: relative;
 }
 
 .messages-container {
@@ -211,28 +234,14 @@ body {
     flex-direction: column;
     gap: 12px;
     scroll-behavior: smooth;
+    transition: background-color 0.3s;
 }
 
-/* شريط التمرير المخصص */
-.messages-container::-webkit-scrollbar {
-    width: 8px;
-}
-
-.messages-container::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.messages-container::-webkit-scrollbar-thumb {
-    background: var(--primary-light);
-    border-radius: 10px;
-    transition: background 0.3s;
-}
-
-.messages-container::-webkit-scrollbar-thumb:hover {
-    background: var(--primary-color);
-}
-
-/* رسالة الترحيب */
+/* ... (شريط التمرير ورسالة الترحيب لم تتغير) ... */
+.messages-container::-webkit-scrollbar { width: 8px; }
+.messages-container::-webkit-scrollbar-track { background: transparent; }
+.messages-container::-webkit-scrollbar-thumb { background: var(--primary-light); border-radius: 10px; transition: background 0.3s; }
+.messages-container::-webkit-scrollbar-thumb:hover { background: var(--primary-color); }
 .welcome-card {
     text-align: center;
     padding: 40px 30px;
@@ -241,48 +250,27 @@ body {
     border: 2px dashed var(--border-color);
     margin: 20px auto;
     max-width: 500px;
+    transition: border-color 0.3s;
 }
-
-.welcome-icon {
-    font-size: 4rem;
-    margin-bottom: 15px;
-    animation: wave 1.5s ease-in-out infinite;
-}
-
+.welcome-icon { font-size: 4rem; margin-bottom: 15px; animation: wave 1.5s ease-in-out infinite; }
 @keyframes wave {
     0%, 100% { transform: rotate(0deg); }
     25% { transform: rotate(20deg); }
     75% { transform: rotate(-20deg); }
 }
-
-.welcome-card h2 {
-    color: var(--primary-color);
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin-bottom: 10px;
-}
-
-.welcome-card p {
-    color: var(--text-secondary);
-    font-size: 1rem;
-    margin-bottom: 20px;
-}
-
-.welcome-features {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    flex-wrap: wrap;
-}
-
+.welcome-card h2 { color: var(--primary-color); font-size: 1.5rem; font-weight: 700; margin-bottom: 10px; }
+.welcome-card p { color: var(--text-secondary); font-size: 1rem; margin-bottom: 20px; transition: color 0.3s; }
+.welcome-features { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
 .welcome-features span {
-    background: white;
+    background: var(--surface);
     padding: 6px 14px;
     border-radius: var(--radius-md);
     font-size: 0.875rem;
     color: var(--text-primary);
     box-shadow: var(--shadow-sm);
+    transition: background-color 0.3s, color 0.3s;
 }
+
 
 /* الرسائل */
 .message {
@@ -290,12 +278,14 @@ body {
     flex-direction: column;
     gap: 6px;
     padding: 14px 18px;
-    background: white;
+    background: var(--surface);
     border-radius: var(--radius-md);
     box-shadow: var(--shadow-sm);
     border-left: 4px solid var(--primary-color);
     animation: slideIn 0.3s ease-out;
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s;
+    max-width: 80%;
+    position: relative; /* ✨ جديد: لوضع زر الرد */
 }
 
 .message:hover {
@@ -304,14 +294,8 @@ body {
 }
 
 @keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .message .username {
@@ -325,35 +309,106 @@ body {
     font-size: 1rem;
     word-wrap: break-word;
     line-height: 1.6;
+    transition: color 0.3s;
 }
 
 .message .timestamp {
     font-size: 0.75rem;
     color: var(--text-secondary);
     align-self: flex-end;
+    transition: color 0.3s;
 }
 
-/* ====================================
-   إشعار الكتابة
-==================================== */
+/* ✨ جديد: زر الرد على الرسالة */
+.reply-button {
+    position: absolute;
+    top: -10px;
+    left: -10px; /* 'left' بدلاً من 'right' بسبب 'dir=rtl' */
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    font-size: 1rem;
+    cursor: pointer;
+    box-shadow: var(--shadow-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: opacity 0.2s, transform 0.2s;
+    z-index: 5;
+}
+
+.message:hover .reply-button {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.reply-button:hover {
+    background: var(--primary-dark);
+}
+
+/* ✨ جديد: اقتباس الرد داخل الرسالة */
+.message-reply-quote {
+    background: var(--reply-background);
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    margin-bottom: 8px;
+    border-right: 3px solid var(--secondary-color); /* 'right' بسبب 'dir=rtl' */
+    transition: background-color 0.3s;
+}
+
+.message-reply-quote .username {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--secondary-color);
+}
+
+.message-reply-quote .text {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    display: block; /* لضمان تطبيق ellipsis */
+}
+
+
+/* ... (زر النزول للأسفل وإشعار الكتابة لم يتغيرا) ... */
+.scroll-to-bottom {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    font-size: 1.25rem;
+    cursor: pointer;
+    box-shadow: var(--shadow-lg);
+    animation: slideIn 0.3s ease-out;
+    transition: background-color 0.3s, transform 0.2s;
+    z-index: 10;
+}
+.scroll-to-bottom:hover {
+    background: var(--primary-dark);
+    transform: translateX(-50%) scale(1.1);
+}
 .typing-indicator {
     padding: 10px 25px;
     background: rgba(99, 102, 241, 0.05);
     border-top: 1px solid var(--border-color);
+    transition: border-color 0.3s;
 }
-
-.typing-content {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.typing-dots {
-    display: flex;
-    gap: 4px;
-    padding: 8px;
-}
-
+.typing-content { display: flex; align-items: center; gap: 10px; }
+.typing-dots { display: flex; gap: 4px; padding: 8px; }
 .typing-dots span {
     width: 8px;
     height: 8px;
@@ -361,41 +416,85 @@ body {
     border-radius: 50%;
     animation: typing 1.4s infinite ease-in-out;
 }
-
-.typing-dots span:nth-child(2) {
-    animation-delay: 0.2s;
-}
-
-.typing-dots span:nth-child(3) {
-    animation-delay: 0.4s;
-}
-
+.typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+.typing-dots span:nth-child(3) { animation-delay: 0.4s; }
 @keyframes typing {
-    0%, 60%, 100% {
-        transform: translateY(0);
-        opacity: 0.7;
-    }
-    30% {
-        transform: translateY(-10px);
-        opacity: 1;
-    }
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.7; }
+    30% { transform: translateY(-10px); opacity: 1; }
 }
+.typing-text { color: var(--primary-color); font-size: 0.875rem; font-weight: 600; }
 
-.typing-text {
-    color: var(--primary-color);
-    font-size: 0.875rem;
-    font-weight: 600;
-}
 
 /* ====================================
    منطقة الإدخال
 ==================================== */
 .input-container {
-    background: white;
+    background: var(--surface);
     padding: 20px 25px;
     border-top: 1px solid var(--border-color);
     box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.05);
+    transition: background-color 0.3s, border-color 0.3s;
+    position: relative; /* ✨ جديد: لوضع منتقي الإيموجي */
 }
+
+/* ✨ جديد: حاوية منتقي الرموز التعبيرية */
+.emoji-picker-container {
+    position: absolute;
+    bottom: 100%;
+    left: 25px; /* 'left' بسبب 'dir=rtl' */
+    z-index: 100;
+    margin-bottom: 10px;
+}
+body.dark-mode .emoji-picker-container emoji-picker {
+    --background: var(--surface);
+    --border-color: var(--border-color);
+    --text-color: var(--text-primary);
+}
+
+/* ✨ جديد: صندوق الرد فوق الإدخال */
+.input-reply-context {
+    background: var(--reply-background);
+    padding: 10px 15px;
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    margin: -20px -25px 15px -25px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    animation: slideIn 0.2s ease-out;
+}
+.reply-context-content {
+    overflow: hidden;
+}
+.reply-context-title {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+.reply-context-username {
+    font-weight: 700;
+    margin-right: 5px; /* 'right' بسبب 'dir=rtl' */
+}
+.reply-context-text {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0;
+}
+.cancel-reply-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 5px;
+}
+.cancel-reply-btn:hover {
+    color: var(--text-primary);
+}
+
 
 .input-wrapper {
     display: flex;
@@ -411,17 +510,10 @@ body {
     padding: 4px 4px 4px 12px;
     border-radius: var(--radius-md);
     border: 2px solid var(--border-color);
-    transition: border-color 0.3s;
+    transition: border-color 0.3s, background-color 0.3s;
 }
-
-.username-group:focus-within {
-    border-color: var(--primary-color);
-}
-
-.username-group .input-icon {
-    font-size: 1.25rem;
-}
-
+.username-group:focus-within { border-color: var(--primary-color); }
+.username-group .input-icon { font-size: 1.25rem; }
 .username-group input {
     flex: 1;
     border: none;
@@ -445,20 +537,13 @@ body {
     align-items: center;
     gap: 10px;
     background: var(--background);
-    padding: 4px 4px 4px 12px;
+    padding: 4px 4px 4px 12px; /* ✨ تعديل: مساحة لزر الإيموجي */
     border-radius: var(--radius-md);
     border: 2px solid var(--border-color);
-    transition: border-color 0.3s;
+    transition: border-color 0.3s, background-color 0.3s;
 }
-
-.message-input-wrapper:focus-within {
-    border-color: var(--primary-color);
-}
-
-.message-input-wrapper .input-icon {
-    font-size: 1.25rem;
-}
-
+.message-input-wrapper:focus-within { border-color: var(--primary-color); }
+.message-input-wrapper .input-icon { font-size: 1.25rem; }
 .message-input-wrapper input {
     flex: 1;
     border: none;
@@ -469,13 +554,28 @@ body {
     color: var(--text-primary);
     outline: none;
 }
-
 .message-input-wrapper input::placeholder,
 .username-group input::placeholder {
     color: var(--text-secondary);
 }
 
-/* زر الإرسال */
+/* ✨ جديد: زر الرموز التعبيرية */
+.emoji-button {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0 10px;
+    color: var(--text-secondary);
+    transition: color 0.2s, transform 0.2s;
+}
+.emoji-button:hover {
+    color: var(--primary-color);
+    transform: scale(1.1);
+}
+
+
+/* ... (زر الإرسال والتصميم المتجاوب لم يتغيرا) ... */
 .send-button {
     display: flex;
     align-items: center;
@@ -494,107 +594,37 @@ body {
     box-shadow: var(--shadow-md);
     white-space: nowrap;
 }
+.send-button:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+.send-button:active { transform: translateY(0); }
+.send-icon { width: 20px; height: 20px; transition: transform 0.3s; }
+.send-button:hover .send-icon { transform: translateX(-3px) rotate(-10deg); }
 
-.send-button:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
-}
-
-.send-button:active {
-    transform: translateY(0);
-}
-
-.send-icon {
-    width: 20px;
-    height: 20px;
-    transition: transform 0.3s;
-}
-
-.send-button:hover .send-icon {
-    transform: translateX(-3px) rotate(-10deg);
-}
-
-/* ====================================
-   التصميم المتجاوب
-==================================== */
+/* ... (التصميم المتجاوب) ... */
 @media (max-width: 768px) {
-    .container {
-        margin: 0;
-        height: 100vh;
-        border-radius: 0;
-    }
-
-    .header {
-        padding: 15px 20px;
-    }
-
-    .header-title h1 {
-        font-size: 1.25rem;
-    }
-
-    .header-subtitle {
-        font-size: 0.75rem;
-    }
-
-    .logo-icon {
-        font-size: 2rem;
-    }
-
-    .online-badge {
-        padding: 8px 12px;
-    }
-
-    .count-number {
-        font-size: 1rem;
-    }
-
-    .messages-container {
-        padding: 15px;
-    }
-
-    .welcome-card {
-        padding: 30px 20px;
-    }
-
-    .welcome-icon {
-        font-size: 3rem;
-    }
-
-    .welcome-card h2 {
-        font-size: 1.25rem;
-    }
-
-    .input-container {
-        padding: 15px;
-    }
-
-    .message-group {
-        flex-direction: column;
-    }
-
-    .send-button {
-        width: 100%;
-        padding: 14px;
-    }
+    .container { margin: 0; height: 100vh; border-radius: 0; }
+    .header { padding: 15px 20px; }
+    .header-title h1 { font-size: 1.25rem; }
+    .header-subtitle { font-size: 0.75rem; }
+    .logo-icon { font-size: 2rem; }
+    .online-badge { padding: 8px 12px; }
+    .theme-toggle { width: 40px; height: 40px; font-size: 1.1rem; }
+    .count-number { font-size: 1rem; }
+    .messages-container { padding: 15px; }
+    .welcome-card { padding: 30px 20px; }
+    .welcome-icon { font-size: 3rem; }
+    .welcome-card h2 { font-size: 1.25rem; }
+    .input-container { padding: 15px; }
+    .message-group { flex-direction: column; }
+    .send-button { width: 100%; padding: 14px; }
+    .emoji-picker-container { left: 15px; }
+    .input-reply-context { margin: -15px -15px 15px -15px; }
 }
 
 @media (max-width: 480px) {
-    .header-content {
-        flex-direction: column;
-        gap: 12px;
-    }
-
-    .header-title {
-        width: 100%;
-        justify-content: center;
-    }
-
-    .welcome-features {
-        flex-direction: column;
-        gap: 8px;
-    }
-
-    .welcome-features span {
-        width: 100%;
-    }
+    .header-content { flex-direction: column; gap: 12px; }
+    .header-title { width: 100%; justify-content: center; }
+    .user-info { width: 100%; justify-content: space-between; }
+    .welcome-features { flex-direction: column; gap: 8px; }
+    .welcome-features span { width: 100%; }
+    .message { max-width: 95%; } /* ✨ تعديل: للسماح برؤية أفضل */
 }

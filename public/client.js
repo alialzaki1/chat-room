@@ -13,19 +13,41 @@ const usernameInput = document.getElementById('username');
 const typingIndicator = document.getElementById('typingIndicator');
 const typingText = document.getElementById('typingText');
 const userCountElement = document.getElementById('userCount');
+const themeToggle = document.getElementById('themeToggle');
+const scrollToBottomBtn = document.getElementById('scrollToBottomBtn');
+
+// ✨ جديد: عناصر الرموز التعبيرية والرد
+const emojiButton = document.getElementById('emojiButton');
+const emojiPickerContainer = document.getElementById('emojiPickerContainer');
+const emojiPicker = document.querySelector('emoji-picker');
+const inputReplyContext = document.getElementById('inputReplyContext');
+const replyContextUsername = document.getElementById('replyContextUsername');
+const replyContextText = document.getElementById('replyContextText');
+const cancelReplyBtn = document.getElementById('cancelReplyBtn');
+
 
 // ====================================
-// توليد اسم مستخدم افتراضي
+// اسم المستخدم
 // ====================================
-const arabicNames = [
-    'محمد', 'أحمد', 'علي', 'فاطمة', 'خديجة', 
-    'عمر', 'عثمان', 'خالد', 'سارة', 'مريم',
-    'يوسف', 'إبراهيم', 'زينب', 'نور', 'ليلى'
-];
-
-const randomName = arabicNames[Math.floor(Math.random() * arabicNames.length)];
-const randomNumber = Math.floor(Math.random() * 9999);
-usernameInput.value = `${randomName}${randomNumber}`;
+const savedUsername = localStorage.getItem('username');
+if (savedUsername) {
+    usernameInput.value = savedUsername;
+} else {
+    // ✨✨✨ تم تحديث هذه القائمة بناءً على طلبك ✨✨✨
+    const arabicNames = [
+        'علي', 'حسن', 'حسين', 'جعفر', 'موسى', 'كاظم', 'رضا', 
+        'جواد', 'هادي', 'مهدي', 'باقر', 'عباس', 'فاطمة', 
+        'زينب', 'زهراء', 'رقية', 'سكينة', 'نرجس', 'معصومة'
+    ];
+    // ... (نفس كود توليد الاسم العشوائي)
+    const randomName = arabicNames[Math.floor(Math.random() * arabicNames.length)];
+    const randomNumber = Math.floor(Math.random() * 9999);
+    usernameInput.value = `${randomName}${randomNumber}`;
+    localStorage.setItem('username', usernameInput.value);
+}
+usernameInput.addEventListener('input', () => {
+    localStorage.setItem('username', usernameInput.value.trim());
+});
 
 // ====================================
 // متغيرات تتبع الحالة
@@ -33,41 +55,69 @@ usernameInput.value = `${randomName}${randomNumber}`;
 let isTyping = false;
 let typingTimer;
 let isFirstMessage = true;
+let currentReplyMessageId = null; // ✨ جديد: لتتبع الرسالة التي يتم الرد عليها
 
 // ====================================
 // دالة إرسال الرسالة
 // ====================================
 function sendMessage() {
     const text = messageInput.value.trim();
-    const username = usernameInput.value.trim() || 'مجهول';
+    const username = usernameInput.value.trim() || localStorage.getItem('username') || 'مجهول';
 
     if (!text) {
-        // هز الحقل إذا كان فارغاً
-        messageInput.classList.add('shake');
-        setTimeout(() => messageInput.classList.remove('shake'), 500);
+        messageInput.parentElement.classList.add('shake');
+        setTimeout(() => messageInput.parentElement.classList.remove('shake'), 500);
         return;
     }
 
-    // إرسال الرسالة للخادم
-    socket.emit('chat message', { username, text });
+    // ✨ تعديل: إرسال كائن الرسالة كاملاً
+    const messageData = {
+        username,
+        text,
+        replyToId: currentReplyMessageId // أضفنا ID الرد
+    };
+    socket.emit('chat message', messageData);
 
-    // مسح الحقل
     messageInput.value = '';
-    
-    // إيقاف إشعار الكتابة
     socket.emit('stop typing');
     isTyping = false;
 
-    // تأثير الإرسال
+    // ✨ جديد: إلغاء وضع الرد بعد الإرسال
+    cancelReply();
+
     sendButton.classList.add('sent');
     setTimeout(() => sendButton.classList.remove('sent'), 300);
 }
 
 // ====================================
+// ✨ جديد: دوال الرد
+// ====================================
+function startReply(messageId, username, text) {
+    currentReplyMessageId = messageId;
+    replyContextUsername.textContent = username;
+    replyContextText.textContent = text;
+    inputReplyContext.style.display = 'flex';
+    messageInput.focus();
+}
+
+function cancelReply() {
+    currentReplyMessageId = null;
+    inputReplyContext.style.display = 'none';
+    replyContextUsername.textContent = '';
+    replyContextText.textContent = '';
+}
+// ربط زر الإلغاء
+cancelReplyBtn.addEventListener('click', cancelReply);
+
+
+// ====================================
 // دالة إضافة رسالة
 // ====================================
-function addMessage(username, text, timestamp) {
-    // إزالة رسالة الترحيب عند أول رسالة
+// ✨ تعديل: الدالة أصبحت تستقبل كائن رسالة كامل
+function addMessage(msg) {
+    // msg = { id, username, text, timestamp, replyTo }
+    // replyTo = { username, text } (اختياري)
+
     if (isFirstMessage) {
         const welcomeCard = messagesContainer.querySelector('.welcome-card');
         if (welcomeCard) {
@@ -79,30 +129,48 @@ function addMessage(username, text, timestamp) {
 
     const messageElement = document.createElement('div');
     messageElement.className = 'message';
+    // ✨ جديد: إضافة ID الرسالة للـ DOM
+    messageElement.dataset.messageId = msg.id; 
+    messageElement.dataset.username = msg.username;
+    messageElement.dataset.text = msg.text;
 
     // تنسيق الوقت
-    const time = timestamp ? new Date(timestamp) : new Date();
+    const time = msg.timestamp ? new Date(msg.timestamp) : new Date();
     const timeString = time.toLocaleTimeString('ar-SA', { 
         hour: '2-digit', 
         minute: '2-digit',
         hour12: true
     });
 
+    // ✨ جديد: بناء الاقتباس (الرد) إذا وجد
+    let replyQuoteHtml = '';
+    if (msg.replyTo) {
+        replyQuoteHtml = `
+            <div class="message-reply-quote">
+                <span class="username">${escapeHtml(msg.replyTo.username)}</span>
+                <span class="text">${escapeHtml(msg.replyTo.text)}</span>
+            </div>
+        `;
+    }
+
     messageElement.innerHTML = `
-        <span class="username">${escapeHtml(username)}</span>
-        <span class="text">${escapeHtml(text)}</span>
+        ${replyQuoteHtml}
+        <span class="username">${escapeHtml(msg.username)}</span>
+        <span class="text">${escapeHtml(msg.text)}</span>
         <span class="timestamp">${timeString}</span>
+        <button class="reply-button">↩</button>
     `;
 
+    // ... (نفس منطق التمرير للأسفل) ...
+    const isScrolledToBottom = messagesContainer.scrollHeight - messagesContainer.clientHeight <= messagesContainer.scrollTop + 50;
     messagesContainer.appendChild(messageElement);
-    
-    // التمرير السلس للأسفل
-    setTimeout(() => {
-        messagesContainer.scrollTo({
-            top: messagesContainer.scrollHeight,
-            behavior: 'smooth'
-        });
-    }, 100);
+    if (isScrolledToBottom) {
+        setTimeout(() => {
+            messagesContainer.scrollTo({ top: messagesContainer.scrollHeight, behavior: 'smooth' });
+        }, 100);
+    } else {
+        scrollToBottomBtn.style.display = 'block';
+    }
 }
 
 // ====================================
@@ -118,28 +186,21 @@ function escapeHtml(text) {
 // معالجات الأحداث
 // ====================================
 
-// النقر على زر الإرسال
+// ... (النقر والإدخال) ...
 sendButton.addEventListener('click', sendMessage);
-
-// الضغط على Enter
 messageInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
         sendMessage();
     }
 });
-
-// معالجة الكتابة (Typing Indicator)
 messageInput.addEventListener('input', () => {
     const username = usernameInput.value.trim() || 'مجهول';
-    
     if (messageInput.value.trim() !== '') {
         if (!isTyping) {
             isTyping = true;
             socket.emit('typing', username);
         }
-        
-        // إعادة تعيين المؤقت
         clearTimeout(typingTimer);
         typingTimer = setTimeout(() => {
             isTyping = false;
@@ -152,170 +213,47 @@ messageInput.addEventListener('input', () => {
         }
     }
 });
-
-// التركيز على حقل الرسالة عند تحميل الصفحة
 window.addEventListener('load', () => {
     messageInput.focus();
 });
 
-// ====================================
-// استقبال الأحداث من الخادم
-// ====================================
 
-// استقبال الرسائل السابقة
-socket.on('previous messages', (messages) => {
-    messages.forEach(msg => {
-        addMessage(msg.username, msg.text, msg.timestamp);
-    });
+// ... (أزرار النزول والوضع الداكن) ...
+scrollToBottomBtn.addEventListener('click', () => {
+    messagesContainer.scrollTo({ top: messagesContainer.scrollHeight, behavior: 'smooth' });
+    scrollToBottomBtn.style.display = 'none';
 });
-
-// استقبال رسالة جديدة
-socket.on('chat message', (msg) => {
-    addMessage(msg.username, msg.text, msg.timestamp);
-    
-    // تشغيل صوت إشعار (اختياري)
-    playNotificationSound();
+messagesContainer.addEventListener('scroll', () => {
+    if (messagesContainer.scrollHeight - messagesContainer.clientHeight <= messagesContainer.scrollTop + 50) {
+        scrollToBottomBtn.style.display = 'none';
+    }
 });
-
-// تحديث عدد المستخدمين
-socket.on('user count', (count) => {
-    userCountElement.textContent = count;
-    
-    // تأثير النبض عند تغيير العدد
-    userCountElement.style.animation = 'none';
-    setTimeout(() => {
-        userCountElement.style.animation = 'pulse 0.5s ease-out';
-    }, 10);
-});
-
-// عرض إشعار الكتابة
-socket.on('typing', (username) => {
-    typingText.textContent = `${username} يكتب...`;
-    typingIndicator.style.display = 'block';
-});
-
-// إخفاء إشعار الكتابة
-socket.on('stop typing', () => {
-    typingIndicator.style.display = 'none';
-});
-
-// معالجة الاتصال
-socket.on('connect', () => {
-    console.log('✅ متصل بالخادم');
-});
-
-// معالجة قطع الاتصال
-socket.on('disconnect', () => {
-    console.log('❌ تم قطع الاتصال');
-    showConnectionStatus(false);
-});
-
-// معالجة إعادة الاتصال
-socket.on('reconnect', () => {
-    console.log('🔄 تم إعادة الاتصال');
-    showConnectionStatus(true);
-});
-
-// ====================================
-// دوال مساعدة
-// ====================================
-
-// تشغيل صوت إشعار بسيط
-function playNotificationSound() {
-    try {
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-        
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-        
-        oscillator.frequency.value = 800;
-        oscillator.type = 'sine';
-        
-        gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
-        
-        oscillator.start(audioContext.currentTime);
-        oscillator.stop(audioContext.currentTime + 0.1);
-    } catch (e) {
-        // تجاهل الأخطاء الصوتية
+function setInitialTheme() {
+    const preferredTheme = localStorage.getItem('theme');
+    if (preferredTheme === 'dark') {
+        document.body.classList.add('dark-mode');
+        emojiPicker.classList.remove('light');
+        emojiPicker.classList.add('dark');
+    } else {
+        document.body.classList.remove('dark-mode');
+        emojiPicker.classList.remove('dark');
+        emojiPicker.classList.add('light');
     }
 }
+setInitialTheme();
+themeToggle.addEventListener('click', () => {
+    document.body.classList.toggle('dark-mode');
+    if (document.body.classList.contains('dark-mode')) {
+        localStorage.setItem('theme', 'dark');
+        emojiPicker.classList.remove('light');
+        emojiPicker.classList.add('dark');
+    } else {
+        localStorage.setItem('theme', 'light');
+        emojiPicker.classList.remove('dark');
+        emojiPicker.classList.add('light');
+    }
+});
 
-// عرض حالة الاتصال
-function showConnectionStatus(connected) {
-    const statusDiv = document.createElement('div');
-    statusDiv.style.cssText = `
-        position: fixed;
-        top: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: ${connected ? '#10b981' : '#ef4444'};
-        color: white;
-        padding: 12px 24px;
-        border-radius: 8px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        z-index: 1000;
-        animation: slideDown 0.3s ease-out;
-    `;
-    statusDiv.textContent = connected ? '✅ متصل' : '❌ غير متصل';
-    
-    document.body.appendChild(statusDiv);
-    
-    setTimeout(() => {
-        statusDiv.style.animation = 'slideUp 0.3s ease-out';
-        setTimeout(() => statusDiv.remove(), 300);
-    }, 2000);
-}
 
 // ====================================
-// أنماط CSS إضافية للتأثيرات
-// ====================================
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes fadeOut {
-        to { opacity: 0; transform: scale(0.9); }
-    }
-    
-    @keyframes pulse {
-        0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.2); }
-    }
-    
-    @keyframes slideDown {
-        from { transform: translate(-50%, -100%); opacity: 0; }
-        to { transform: translate(-50%, 0); opacity: 1; }
-    }
-    
-    @keyframes slideUp {
-        from { transform: translate(-50%, 0); opacity: 1; }
-        to { transform: translate(-50%, -100%); opacity: 0; }
-    }
-    
-    .shake {
-        animation: shake 0.5s;
-    }
-    
-    @keyframes shake {
-        0%, 100% { transform: translateX(0); }
-        25% { transform: translateX(-10px); }
-        75% { transform: translateX(10px); }
-    }
-    
-    .sent {
-        animation: sendPulse 0.3s;
-    }
-    
-    @keyframes sendPulse {
-        0%, 100% { transform: scale(1); }
-        50% { transform: scale(0.95); }
-    }
-`;
-document.head.appendChild(style);
-
-// ====================================
-// رسالة في الـ Console
-// ====================================
-console.log('%c💬 غرفة الدردشة ', 'background: #6366f1; color: white; font-size: 20px; padding: 10px; border-radius: 5px;');
-console.log('%cمرحباً بك! الموقع يعمل بشكل صحيح ✅', 'color: #10b981; font-size: 14px;');
+// ✨ جديد: منطق ال

@@ -5,20 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>غرفة الدردشة الفورية</title>
     <link rel="stylesheet" href="style.css">
-    <!-- خط Cairo من Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <script 
+        type="module" 
+        src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"
+    ></script>
 </head>
 <body>
     <div class="background-animation"></div>
     
     <div class="container">
-        <!-- رأس الصفحة المحسّن -->
         <header class="header">
             <div class="header-content">
                 <div class="header-title">
-                    <div class="logo-icon">💬</div>
+                    <div class="logo-icon">🚀</div>
                     <div>
                         <h1>غرفة الدردشة</h1>
                         <p class="header-subtitle">تواصل مع الجميع بسهولة</p>
@@ -32,26 +35,32 @@
                             <span id="userCount" class="count-number">0</span>
                         </div>
                     </div>
+                    <button id="themeToggle" class="theme-toggle">
+                        <span class="icon-moon">🌙</span>
+                        <span class="icon-sun">☀️</span>
+                    </button>
                 </div>
             </div>
         </header>
 
-        <!-- منطقة الرسائل -->
         <div class="messages-wrapper">
             <div class="messages-container" id="messagesContainer">
                 <div class="welcome-card">
                     <div class="welcome-icon">👋</div>
                     <h2>مرحباً بك في غرفة الدردشة!</h2>
-                    <p>ابدأ محادثتك الآن وتواصل مع المستخدمين الآخرين</p>
+                    <p>ابدأ محادثتك الآن. مرر الفأرة على أي رسالة للرد عليها.</p>
                     <div class="welcome-features">
                         <span>✨ دردشة فورية</span>
-                        <span>🔒 آمنة وسريعة</span>
-                        <span>📱 متجاوبة</span>
+                        <span>↩️ الرد على الرسائل</span>
+                        <span>😄 رموز تعبيرية</span>
                     </div>
                 </div>
             </div>
+            
+            <button id="scrollToBottomBtn" class="scroll-to-bottom" style="display: none;">
+                ⬇️
+            </button>
 
-            <!-- إشعار الكتابة المحسّن -->
             <div class="typing-indicator" id="typingIndicator" style="display: none;">
                 <div class="typing-content">
                     <div class="typing-dots">
@@ -64,10 +73,21 @@
             </div>
         </div>
 
-        <!-- منطقة الإدخال المحسّنة -->
         <div class="input-container">
+            <div class="emoji-picker-container" id="emojiPickerContainer" style="display: none;">
+                <emoji-picker class="light"></emoji-picker>
+            </div>
+
+            <div class="input-reply-context" id="inputReplyContext" style="display: none;">
+                <div class="reply-context-content">
+                    <span class="reply-context-title">الرد على:</span>
+                    <span id="replyContextUsername" class="reply-context-username"></span>
+                    <p id="replyContextText" class="reply-context-text"></p>
+                </div>
+                <button id="cancelReplyBtn" class="cancel-reply-btn">✕</button>
+            </div>
+
             <div class="input-wrapper">
-                <!-- حقل الاسم -->
                 <div class="username-group">
                     <div class="input-icon">👤</div>
                     <input 
@@ -79,7 +99,6 @@
                     >
                 </div>
 
-                <!-- حقل الرسالة -->
                 <div class="message-group">
                     <div class="message-input-wrapper">
                         <div class="input-icon">✉️</div>
@@ -90,6 +109,7 @@
                             maxlength="500"
                             autocomplete="off"
                         >
+                        <button id="emojiButton" class="emoji-button">😄</button>
                     </div>
                     <button id="sendButton" class="send-button">
                         <svg class="send-icon" viewBox="0 0 24 24" fill="none">
